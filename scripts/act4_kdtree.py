@@ -117,18 +117,15 @@ def experimento(d):
     }
 
 def coma(x, decimales):
-    # Número con coma decimal, escrito para LaTeX.
     return f"{x:.{decimales}f}".replace(".", "{,}")
 
 
 def miles(n):
-    # Entero con separador de miles, escrito para LaTeX: 517\,320.
     return f"{n:,}".replace(",", "\\,")
 
 
 def escribir_tabla(nombre, columnas, encabezado, filas):
     with open(f"informe/tablas/{nombre}.tex", "w", encoding="utf-8") as f:
-        f.write("% Generado por scripts/act4_kdtree.py. No editar a mano.\n")
         f.write("\\begin{tabular}{" + columnas + "}\n")
         f.write("\\toprule\n")
         f.write(" & ".join(encabezado) + " \\\\\n")
@@ -208,7 +205,6 @@ def guardar_graficos(resultados):
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["mathtext.fontset"] = "cm"
 
-    # Los gráficos usan solo las dimensiones pedidas, sin la referencia d = 64.
     res = [r for r in resultados if r["d"] in DIMENSIONES]
     ds = [r["d"] for r in res]
     etiqueta_d = "dimensionalidad $d$ (componentes de PCA)"
@@ -277,7 +273,6 @@ def guardar_graficos(resultados):
 
 
 resultados = []
-# Se agrega d = 64 (todas las componentes) como referencia sin reducción.
 for d in DIMENSIONES + [64]:
     print("d =", d)
     resultados.append(experimento(d))
