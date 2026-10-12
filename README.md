@@ -33,7 +33,6 @@ iterativos y recursivos, algoritmos Dividir para Conquistar, y una implementaci√
 ## Dependencias
 
 - **Python 3.12** con los paquetes de [`requirements.txt`](requirements.txt).
-- **LaTeX** (TeX Live o MacTeX) con `latexmk`, solo para recompilar el informe.
 
 ## Reproducir los resultados
 
@@ -46,9 +45,6 @@ pip install -r requirements.txt
 # 2. Regenerar tablas, figuras y datos (entre 1 y 2 minutos)
 python scripts/act2_log_vs_raiz.py
 python scripts/act4_kdtree.py
-
-# 3. Compilar el informe
-cd informe && latexmk main.tex
 ```
 
 Todos los comandos se ejecutan desde la ra√≠z del repositorio.
