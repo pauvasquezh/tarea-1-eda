@@ -27,8 +27,7 @@ iterativos y recursivos, algoritmos Dividir para Conquistar, y una implementaci�
 │   ├── act2_log_vs_raiz.py  #   gráfico de log2(n) y sqrt(n) de la Actividad 2.2
 │   └── act4_kdtree.py       #   experimentos de la Actividad 4
 ├── resultados/              # Datos crudos de los experimentos (CSV)
-├── requirements.txt         # Dependencias de Python con versiones fijas
-└── Makefile                 # Comandos de reproducción
+└── requirements.txt         # Dependencias de Python con versiones fijas
 ```
 
 ## Dependencias
@@ -44,22 +43,12 @@ python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-# 2. Reproducir todo (pruebas + tablas y figuras + informe PDF)
-make all
-```
-
-Comandos individuales:
-
-| Comando | Qué hace |
-|---------|----------|
-| `make experimentos` | Regenera `resultados/*.csv`, `informe/tablas/` e `informe/figuras/` (entre 1 y 2 minutos). |
-| `make informe` | Compila el LaTeX y copia el PDF a `informe.pdf`. |
-| `make limpiar` | Borra archivos auxiliares. |
-
-Sin `make`, los equivalentes son (siempre desde la raíz del repositorio):
-
-```bash
+# 2. Regenerar tablas, figuras y datos (entre 1 y 2 minutos)
 python scripts/act2_log_vs_raiz.py
 python scripts/act4_kdtree.py
+
+# 3. Compilar el informe
 cd informe && latexmk main.tex
 ```
+
+Todos los comandos se ejecutan desde la raíz del repositorio.
