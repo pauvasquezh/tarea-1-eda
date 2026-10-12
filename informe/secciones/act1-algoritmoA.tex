@@ -1,0 +1,230 @@
+\subsection{Algoritmo A}
+\label{sec:act1a}
+
+\begin{enunciado}
+\begin{lstlisting}[language={}, numbers=none, frame=none, backgroundcolor={}]
+Procedure A(n)
+    for i = 1 to n
+        j = i
+        while j <= n
+            Operation()        // costo Theta(1)
+            j = 2*j
+\end{lstlisting}
+\begin{enumerate}[label=(\alph*)]
+  \item Determine cuántas veces se ejecuta \texttt{Operation()} para un valor fijo de $i$.
+  \item Escriba una sumatoria que represente el número total de ejecuciones.
+  \item Obtenga una cota $\Theta$ ajustada. Se recomienda considerar, de manera
+        alternativa, cuántos valores de $i$ pueden ejecutar la iteración $k$ del ciclo while.
+  \item Explique por qué concluir $\T{n\log n}$ únicamente porque existe un for y un
+        while sería incorrecto.
+\end{enumerate}
+\end{enunciado}
+
+Contamos cuántas veces se ejecuta \texttt{Operation()} y llamamos $T(n)$ a ese número.
+Cada iteración del while ejecuta exactamente un \texttt{Operation()}, una asignación
+\texttt{j = 2*j} y una comparación \texttt{j <= n}, de modo que cada iteración cuesta
+$\T{1}$, de acuerdo al enunciado. Además, cada valor de $i$ agrega unas pocas
+operaciones que no dependen de cuántas vueltas dé el while: asignar \texttt{j = i}, avanzar el for y hacer la última
+comparación del while, la que da falso y lo termina. Como esto cuesta lo mismo para cada
+$i$ y hay $n$ valores de $i$, en total suma $\T{n}$. Por otro lado, el while siempre da
+al menos una vuelta, porque $j$ parte en $i$ y el for nunca deja que $i$ supere a $n$.
+Entonces cada $i$ ejecuta \texttt{Operation()} al menos una vez, y $T(n) \ge n$. Por lo
+tanto, esas operaciones extra, que suman $\T{n}$, quedan absorbidas, y el costo total
+del algoritmo es $\T{T(n)}$.
+
+% ============================================================
+\subsubsection*{(a) Ejecuciones para un $i$ fijo}
+
+Fijamos un valor de $i$ y contamos cuántas veces se ejecuta el cuerpo del while. A ese
+número lo llamamos $c(i)$.
+
+Introducimos la variable $m$ como la cantidad de vueltas completadas hasta el momento.
+Antes de la primera vuelta, $m = 0$ y $j = i$. Cada vuelta termina con \texttt{j = 2*j},
+así que $j$ se multiplica por $2$ una vez por vuelta:
+\begin{center}
+\begin{tabular}{cc}
+  \toprule
+  vueltas ya completadas & valor de $j$ \\
+  \midrule
+  $0$ & $i$ \\
+  $1$ & $2i$ \\
+  $2$ & $4i = 2^2\, i$ \\
+  $3$ & $8i = 2^3\, i$ \\
+  $\vdots$ & $\vdots$ \\
+  $m$ & $2^m\, i$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Es decir, después de $m$ vueltas, $j = i \cdot 2^m$.
+
+En ese momento el while vuelve a evaluar su condición con $j = i\cdot 2^m$. Si la condición se cumple, se ejecuta una vuelta más. Si no, el while
+termina. Entonces, la vuelta número $m + 1$ se ejecuta si y solo si
+\[
+  i \cdot 2^m \le n.
+\]
+Como $j$ solo crece, una vez que la condición falla ya no vuelve a cumplirse. Por eso se
+ejecutan las vueltas de $m = 0, 1, 2, \dots$ seguidas, hasta el último $m$ que cumple la
+desigualdad.
+
+Lo que queremos saber es cuántas vueltas da el while. Como se da una vuelta más
+mientras se cumpla $i \cdot 2^m \le n$, contar las vueltas es lo mismo que contar
+cuántos valores de $m$ cumplen esa condición. Para eso despejamos $m$.
+
+Primero dividimos ambos lados por $i$:
+\[
+  i \cdot 2^m \le n \iff 2^m \le \frac{n}{i}.
+\]
+Ahora hay que sacar $m$ del exponente. Aplicando logaritmo a ambos lados:
+\[
+  2^m \le \frac{n}{i} \iff m \le \log_2 \frac{n}{i}.
+\]
+
+Como $m$ cuenta vueltas, solo puede tomar valores enteros: $0, 1, 2, \dots$ El mayor de
+ellos que cumple la condición es $\log_2(n/i)$ redondeado hacia abajo, que se escribe
+$\floor{\log_2(n/i)}$. Por lo tanto, $m$ puede valer $0, 1, \dots, \floor{\log_2(n/i)}$,
+y el número de vueltas es
+\[
+  c(i) = \floor*{\log_2 \frac{n}{i}} + 1, \qquad 1 \le i \le n,
+\]
+donde el $1$ se suma porque la cuenta parte en $m = 0$.
+
+\noindent\begin{minipage}{\linewidth}
+\paragraph{Comprobación con $n = 8$.}
+Al ejecutar el algoritmo a mano, las vueltas coinciden con la fórmula:
+\begin{center}
+\begin{tabular}{ccccc}
+  \toprule
+  $i$ & valores de $j$ & $\log_2(8/i)$ & $\floor{\log_2(8/i)} + 1$ & vueltas \\
+  \midrule
+  1 & 1, 2, 4, 8 & 3      & 4 & 4 \\
+  2 & 2, 4, 8    & 2      & 3 & 3 \\
+  3 & 3, 6       & 1,42   & 2 & 2 \\
+  4 & 4, 8       & 1      & 2 & 2 \\
+  5 & 5          & 0,68   & 1 & 1 \\
+  6 & 6          & 0,42   & 1 & 1 \\
+  7 & 7          & 0,19   & 1 & 1 \\
+  8 & 8          & 0      & 1 & 1 \\
+  \midrule
+  \multicolumn{4}{c}{Total} & 15 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{minipage}
+
+% ============================================================
+\subsubsection*{(b) Sumatoria del total}
+
+En cada vuelta del while se ejecuta \texttt{Operation()} una vez. Por lo tanto, para un
+$i$ fijo, \texttt{Operation()} se ejecuta $c(i)$ veces. El for pasa por todos los valores
+de $i$, desde $1$ hasta $n$, así que el total es la suma de lo que aporta cada uno:
+\[
+  T(n) = c(1) + c(2) + \cdots + c(n).
+\]
+Escrito como sumatoria y reemplazando $c(i)$ por la fórmula de la parte (a):
+\[
+  T(n) = \sum_{i=1}^{n} c(i) = \sum_{i=1}^{n} \left( \floor*{\log_2 \frac{n}{i}} + 1 \right).
+\]
+Con $n = 8$, esto da $4 + 3 + 2 + 2 + 1 + 1 + 1 + 1 = 15$, como se mostró en (a).
+
+% ============================================================
+\subsubsection*{(c) Cota ajustada}
+
+Contaremos cuántos valores de $i$ llegan a la iteración $k$, como se sugiere en el
+enunciado.
+
+En (a) vimos que, después de $m$ vueltas completadas, $j = i \cdot 2^m$. La iteración $k$
+es la que se hace cuando ya se completaron $k - 1$ vueltas, así que en ella
+$j = i \cdot 2^{k-1}$. Por ejemplo, en la primera iteración ($k = 1$) se tiene $j = i$, y
+en la segunda ($k = 2$), $j = 2i$.
+
+Un valor de $i$ llega a la iteración $k$ solo si en ese momento se cumple la condición del
+while, es decir, si $i \cdot 2^{k-1} \le n$. Despejando $i$:
+\[
+  i \cdot 2^{k-1} \le n \iff i \le \frac{n}{2^{k-1}}.
+\]
+Es decir, llegan a la iteración $k$ todos los $i$ desde $1$ hasta $n/2^{k-1}$. Como $i$
+es un número entero, el último que llega es $n/2^{k-1}$ redondeado hacia abajo. Por lo
+tanto, a la iteración $k$ llegan $\floor{n/2^{k-1}}$ valores de $i$. Por ejemplo, con
+$n = 8$:
+\begin{center}
+\begin{tabular}{cccc}
+  \toprule
+  iteración $k$ & condición & valores de $i$ que llegan & cantidad \\
+  \midrule
+  1 & $i \le 8$ & $1, 2, \dots, 8$ & 8 \\
+  2 & $i \le 4$ & $1, 2, 3, 4$     & 4 \\
+  3 & $i \le 2$ & $1, 2$           & 2 \\
+  4 & $i \le 1$ & $1$              & 1 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Cada vez que un valor de $i$ llega a una iteración, se ejecuta \texttt{Operation()} una
+vez. Por eso, si sumamos cuántos valores de $i$ llegan a cada iteración, obtenemos el
+total de ejecuciones:
+\[
+  T(n) = n + \floor*{\frac{n}{2}} + \floor*{\frac{n}{4}} + \cdots
+\]
+Con $n = 8$, esto da $8 + 4 + 2 + 1 = 15$, como se mostró en (a).
+
+La suma termina cuando $2^{k-1} > n$, porque desde ahí ningún valor de $i$ llega a la
+iteración, ni siquiera $i = 1$. Para escribirla de forma más corta usamos $m = k - 1$, que
+empieza en $0$. Así, cada término es $\floor{n/2^m}$, y la suma sigue mientras
+$2^m \le n$, es decir, mientras $m \le \log_2 n$. Como $m$ es entero, el último valor es
+$m = \floor{\log_2 n}$:
+\[
+  T(n) = \sum_{m=0}^{\floor{\log_2 n}} \floor*{\frac{n}{2^m}}.
+\]
+
+\textbf{Cota superior.} Buscamos una expresión que sea siempre mayor o igual que
+$T(n)$, para cualquier $n$. Para eso hacemos dos cambios en la suma que solo pueden
+agrandarla.
+
+Primero, quitamos el redondeo hacia abajo:
+\[
+  T(n) \le n + \frac{n}{2} + \frac{n}{4} + \cdots + \frac{n}{2^{\floor{\log_2 n}}}.
+\]
+Segundo, dejamos que la suma siga para siempre:
+\[
+  T(n) \le n + \frac{n}{2} + \frac{n}{4} + \frac{n}{8} + \cdots
+       = n \left( 1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \cdots \right).
+\]
+Lo que queda entre paréntesis es una serie geométrica de razón $1/2$:
+\[
+  1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \cdots = \frac{1}{1 - 1/2} = 2.
+\]
+Reemplazando este valor en la desigualdad anterior, $T(n) \le n \cdot 2 = 2n$.
+
+\textbf{Cota inferior.} Ahora buscamos una expresión que sea siempre menor o igual que
+$T(n)$, para cualquier $n$. El primer término de la suma, $n$, cuenta los valores de $i$
+que hacen la primera iteración, y los demás términos no pueden ser negativos. Por lo
+tanto, $T(n) \ge n$.
+
+Juntando ambas cotas:
+\[
+  n \le T(n) \le 2n \qquad \text{para todo } n \ge 1.
+\]
+Según la definición vista en clases, $T(n) \in \T{n}$ si existen dos constantes
+$c_1, c_2 > 0$ y un $n_0 \in \N$ tales que $0 \le c_1 n \le T(n) \le c_2 n$ para todo
+$n \ge n_0$. \[
+  1 \cdot n \le T(n) \le 2 \cdot n.
+\]
+Luego, $c_1 = 1$ y $c_2 = 2$, y las dos cotas valen desde $n = 1$, así que $n_0 = 1$. Por
+lo tanto, $T(n) \in \T{n}$.
+
+% ============================================================
+\subsubsection*{(d) Por qué ``un for y un while'' no justifica $\T{n\log n}$}
+
+El razonamiento de ``un for y un while'' es este: el for da $n$ vueltas, el while da a
+lo más $\floor{\log_2 n} + 1$ vueltas, y entonces el total sería $n$ por $\log n$. El
+problema es que el while no siempre da ese máximo. Eso solo pasa cuando $i = 1$, porque
+$j$ parte en $1$ y tiene que duplicarse muchas veces para llegar a $n$. Cuando $i$ es más
+grande, $j$ empieza en un número más grande, así que se pasa de $n$ con menos
+duplicaciones y el while da menos vueltas. Por ejemplo, con
+$n = 8$, para $i = 1$ da 4 vueltas, pero para $i = 5, 6, 7$ y $8$ da solo una, como se
+mostró en (a). Multiplicar $n$ por el número de vueltas del while solo da el total cuando todos los
+valores de $i$ dan la misma cantidad de vueltas. Por eso hay que sumar las
+vueltas de cada $i$, que es lo que hicimos en (b) y (c).
+
+Además, en (c) vimos que $T(n) \le 2n$, que crece más lento que $n\log n$, así que $T(n)$
+no puede ser $\T{n\log n}$.

@@ -1,0 +1,149 @@
+% ============================================================
+%  Preámbulo: paquetes, estilo y macros del informe
+% ============================================================
+
+% --- Idioma y codificación ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands,es-tabla]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- Página ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% --- Matemática ---
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+
+% --- Algoritmos (pseudocódigo) ---
+\usepackage[ruled,vlined,linesnumbered,spanish,onelanguage]{algorithm2e}
+
+% --- Código Python ---
+\usepackage{listings}
+\usepackage{xcolor}
+
+% --- Figuras, tablas y árboles de recursión ---
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{trees,positioning,arrows.meta,calc}
+\usepackage{forest}
+
+% --- Cajas para resultados ---
+\usepackage[most]{tcolorbox}
+
+% --- Enlaces (cargar al final) ---
+\usepackage[hidelinks]{hyperref}
+\usepackage[nameinlink,spanish]{cleveref}
+
+\graphicspath{{figuras/}}
+
+% ============================================================
+%  Encabezado y pie
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\curso}
+\fancyhead[R]{\small\tituloinforme}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.8em}{}
+
+% ============================================================
+%  Estilo para código Python
+% ============================================================
+\definecolor{codefondo}{RGB}{247,247,247}
+\definecolor{codeclave}{RGB}{0,80,160}
+\definecolor{codecoment}{RGB}{110,110,110}
+\definecolor{codetexto}{RGB}{160,40,40}
+\definecolor{codenum}{RGB}{150,150,150}
+
+\lstdefinestyle{python}{
+  language=Python,
+  backgroundcolor=\color{codefondo},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codeclave}\bfseries,
+  commentstyle=\color{codecoment}\itshape,
+  stringstyle=\color{codetexto},
+  numbers=left,
+  numberstyle=\tiny\color{codenum},
+  numbersep=8pt,
+  frame=single,
+  rulecolor=\color{black!15},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=4,
+  columns=fullflexible,
+  keepspaces=true,
+  xleftmargin=1.5em,
+  framexleftmargin=1.5em,
+  % Acentos y ñ dentro del código
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+\lstset{style=python}
+\renewcommand{\lstlistingname}{Código}
+
+% ============================================================
+%  Macros de notación asintótica
+% ============================================================
+\newcommand{\T}[1]{\Theta\!\left(#1\right)}
+\newcommand{\Oh}[1]{O\!\left(#1\right)}
+\newcommand{\Om}[1]{\Omega\!\left(#1\right)}
+\newcommand{\oh}[1]{o\!\left(#1\right)}
+\newcommand{\om}[1]{\omega\!\left(#1\right)}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiter{\norma}{\lVert}{\rVert}
+
+% ============================================================
+%  Entornos teóricos
+% ============================================================
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{proposicion}{Proposición}[section]
+\newtheorem{lema}{Lema}[section]
+\theoremstyle{remark}
+\newtheorem*{observacion}{Observación}
+\renewcommand{\qedsymbol}{$\blacksquare$}
+
+% ============================================================
+%  Estructura de cada ejercicio
+% ============================================================
+% Enunciado del ejercicio
+\newtcolorbox{enunciado}{
+  colback=black!3, colframe=black!35, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title=Enunciado
+}
+\newcommand{\paso}[2]{\par\medskip\noindent\textbf{Paso #1. #2.}\par\nopagebreak[4]}
+
+% Resultado final destacado
+\newtcolorbox{resultado}{
+  colback=blue!4, colframe=blue!50!black, boxrule=0.6pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title=Resultado
+}
+
+% Intuición / comentario pedagógico
+\newtcolorbox{intuicion}{
+  colback=green!4, colframe=green!40!black, boxrule=0.5pt, arc=2pt,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+  fonttitle=\bfseries, title=Intuición
+}

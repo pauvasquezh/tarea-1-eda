@@ -1,0 +1,227 @@
+\subsection{Sustitución: construcción simple de un k-d tree}
+\label{sec:act3-2}
+
+\begin{enunciado}
+Considere una construcción de k-d tree en la cual, en cada llamada recursiva, los puntos
+se ordenan por la coordenada correspondiente al nivel, se selecciona la mediana y se
+construyen recursivamente ambos subárboles.
+\begin{lstlisting}[language={}, numbers=none, frame=none, backgroundcolor={}]
+BuildKD(P, depth)
+    if |P| <= 1
+        return leaf(P)
+
+    axis = depth mod d
+    sort P according to coordinate axis
+    m = floor(|P|/2)
+
+    node.point = P[m]
+    node.left  = BuildKD(P[0 ... m-1], depth+1)
+    node.right = BuildKD(P[m+1 ... |P|-1], depth+1)
+    return node
+\end{lstlisting}
+Suponga que ordenar $m$ puntos tiene costo $\T{m \log m}$ y que las particiones quedan
+balanceadas.
+\begin{enumerate}[label=(\alph*)]
+  \item Obtenga la recurrencia correspondiente.
+  \item Proponga una cota asintótica para la recurrencia. Puede utilizar un árbol de
+        recursión únicamente para formular la conjetura.
+  \item Demuestre la cota mediante el método de sustitución. La demostración debe incluir
+        cota superior y cota inferior, o una argumentación equivalente que permita concluir
+        una cota $\Theta$.
+  \item Si en vez de ordenar completamente en cada llamada la mediana pudiera obtenerse y
+        particionarse en $\T{m}$, escriba la nueva recurrencia y determine cómo cambiaría
+        el costo de construcción.
+\end{enumerate}
+\end{enunciado}
+
+% ============================================================
+\subsubsection*{(a) Recurrencia}
+
+Llamamos $T(n)$ al tiempo que tarda \texttt{BuildKD} con un conjunto $P$ de $n$ puntos.
+Recorremos el pseudocódigo línea por línea.
+
+Si $n \le 1$, el algoritmo compara $|P|$ con $1$ y crea una hoja. Eso cuesta una
+constante, que llamamos $c$.
+
+Si $n \ge 2$, el algoritmo compara $|P|$ con $1$, calcula \texttt{axis} y \texttt{m}, y
+guarda \texttt{node.point}. Cada una de estas operaciones cuesta $\T{1}$. Además ordena
+los $n$ puntos según la coordenada \texttt{axis}, lo que según el enunciado cuesta
+$\T{n \log n}$. Juntando todo, el trabajo que no es recursivo es $\T{n \log n}$, porque
+las operaciones de costo constante quedan absorbidas por el ordenamiento. Al final hay
+dos llamadas recursivas: una con los puntos $P[0 \dots m-1]$ y otra con
+$P[m+1 \dots |P|-1]$. Como $m = \floor{n/2}$, cada una recibe a lo más $n/2$ puntos, y
+como las particiones quedan balanceadas, cada llamada tarda $T(n/2)$. Suponemos que
+pasar un subarreglo no copia los puntos, así que cuesta $\T{1}$.
+
+Para no cargar la notación, usamos la misma constante $c$ para el caso base y para el
+trabajo no recursivo, que escribimos como $c\,n\log_2 n$. Entonces:
+\[
+  T(n) =
+  \begin{cases}
+    c, & n \le 1, \\[4pt]
+    2\,T\!\left(\dfrac{n}{2}\right) + c\,n \log_2 n, & n \ge 2.
+  \end{cases}
+\]
+El $2\,T(n/2)$ viene de las dos llamadas recursivas, \texttt{node.left} y
+\texttt{node.right}, y el término $c\,n\log_2 n$ viene del ordenamiento. Como se permite
+en clases, suponemos que $n$ es una potencia de $2$.
+
+% ============================================================
+\subsubsection*{(b) Conjetura con el árbol de recursión}
+
+Usamos el árbol de recursión para formular la conjetura, que luego se demuestra por
+sustitución en (c). Cada nodo es una llamada. Dentro de cada
+nodo anotamos el tamaño del subproblema y, debajo, su trabajo no recursivo. La raíz tiene
+tamaño $n$ y trabajo $c\,n\log_2 n$, y cada nodo de tamaño $s$ tiene dos hijos de tamaño
+$s/2$.
+
+\begin{center}
+\begin{forest}
+  for tree={
+    draw, rounded corners, align=center, font=\small,
+    l sep=12mm, s sep=3mm, inner sep=3pt, edge={->}
+  }
+  [{$n$\\[1pt]$c\,n\log_2 n$}
+    [{$n/2$\\[1pt]$c\,\frac{n}{2}\log_2\frac{n}{2}$}
+      [{$n/4$\\[1pt]$c\,\frac{n}{4}\log_2\frac{n}{4}$}]
+      [{$n/4$\\[1pt]$c\,\frac{n}{4}\log_2\frac{n}{4}$}]
+    ]
+    [{$n/2$\\[1pt]$c\,\frac{n}{2}\log_2\frac{n}{2}$}
+      [{$n/4$\\[1pt]$c\,\frac{n}{4}\log_2\frac{n}{4}$}]
+      [{$n/4$\\[1pt]$c\,\frac{n}{4}\log_2\frac{n}{4}$}]
+    ]
+  ]
+\end{forest}
+\end{center}
+
+En el nivel $i$ hay $2^i$ nodos, cada uno de tamaño $n/2^i$. Los tamaños se dividen por
+$2$ en cada nivel, así que llegan a $1$ en el nivel $\log_2 n$, donde están las $n$
+hojas. Cada hoja cuesta $c$.
+\begin{center}
+\begin{tabular}{cccc}
+  \toprule
+  nivel & nodos & tamaño de cada nodo & trabajo del nivel \\
+  \midrule
+  0 & $1$   & $n$     & $c\,n \log_2 n$ \\[2pt]
+  1 & $2$   & $n/2$   & $2 \cdot c\,\frac{n}{2} \log_2 \frac{n}{2} = c\,n\,(\log_2 n - 1)$ \\[4pt]
+  2 & $4$   & $n/4$   & $4 \cdot c\,\frac{n}{4} \log_2 \frac{n}{4} = c\,n\,(\log_2 n - 2)$ \\[2pt]
+  $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+  $i$ & $2^i$ & $n/2^i$ & $c\,n\,(\log_2 n - i)$ \\
+  $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+  $\log_2 n - 1$ & $n/2$ & $2$ & $c\,n \cdot 1$ \\[2pt]
+  $\log_2 n$ (hojas) & $n$ & $1$ & $c\,n$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Sumando los niveles internos, del $0$ al $\log_2 n - 1$, el factor entre paréntesis toma
+los valores $\log_2 n, \log_2 n - 1, \dots, 2, 1$:
+\[
+  c\,n\,\big(\log_2 n + (\log_2 n - 1) + \cdots + 2 + 1\big)
+  = c\,n \cdot \frac{\log_2 n\,(\log_2 n + 1)}{2}
+  = \frac{c}{2}\, n \log_2^2 n + \frac{c}{2}\, n \log_2 n,
+\]
+donde usamos la suma $1 + 2 + \cdots + L = L(L+1)/2$ con $L = \log_2 n$. Agregando las
+hojas, el árbol suma
+\[
+  \frac{c}{2}\, n \log_2^2 n + \frac{c}{2}\, n \log_2 n + c\,n.
+\]
+El término que más crece es $\frac{c}{2}\, n\log_2^2 n$. A diferencia de la Actividad
+3.1, el trabajo de los niveles no baja en forma geométrica: baja solo de a $c\,n$ por
+nivel, así que la mitad de los niveles cuesta al menos la mitad de lo que cuesta la raíz.
+Son $\log_2 n$ niveles que cuestan del orden de $n\log_2 n$ cada uno, y por eso
+conjeturamos
+\[
+  T(n) \in \T{n \log^2 n}.
+\]
+Es el mismo ejemplo que se vio en clases para la forma general del caso 2 del Teorema
+Maestro: $2T(n/2) + n\log n \in \T{n\log^2 n}$.
+
+% ============================================================
+\subsubsection*{(c) Demostración por sustitución}
+
+En las dos cotas usamos que, como $n$ es potencia de $2$,
+\[
+  \log_2 \frac{n}{2} = \log_2 n - 1,
+  \qquad \text{y por lo tanto} \qquad
+  \left( \log_2 \frac{n}{2} \right)^2 = \log_2^2 n - 2\log_2 n + 1.
+\]
+
+\textbf{Cota superior.} Conjetura: $T(n) \le 2c\, n \log_2^2 n$ para todo $n \ge 2$.
+
+\emph{Caso base, $n = 2$.} Por la recurrencia, $T(2) = 2\,T(1) + c \cdot 2 \cdot \log_2 2$.
+Como $T(1) = c$ y $\log_2 2 = 1$, queda $T(2) = 2c + 2c = 4c$. La cota en $n = 2$ vale
+$2c \cdot 2 \cdot (\log_2 2)^2 = 4c$, así que se cumple $4c \le 4c$. Este caso también
+explica la constante. Si la conjetura fuera $T(n) \le d\, n\log_2^2 n$, en $n = 2$ se
+necesitaría $4c \le 2d$, es decir, $d \ge 2c$, y tomamos el menor valor posible,
+$d = 2c$.
+
+La base no puede ser $n = 1$, porque ahí la cota vale $2c \cdot 1 \cdot (\log_2 1)^2 = 0$
+y $T(1) = c$ es mayor que $0$. La cota es falsa en $n = 1$, y por eso la conjetura se
+plantea desde $n = 2$. Partir de $n = 2$ alcanza para cubrir todos los casos. Como $n$ es
+potencia de $2$, los valores que importan son $2, 4, 8, 16, \dots$, y cada uno es el doble
+del anterior. El paso inductivo lleva la cota de $n/2$ a $n$, así que desde $n = 2$ se
+llega a $4$, de $4$ a $8$, y así sucesivamente. El paso parte en $n = 4$ para que $n/2$
+sea al menos $2$ y la hipótesis se pueda usar.
+
+\emph{Paso inductivo.} Sea $n \ge 4$ y supongamos que la cota vale para $n/2$, es decir,
+$T(n/2) \le 2c\, \frac{n}{2} \log_2^2 \frac{n}{2}$. Sustituyendo en la recurrencia:
+\[
+\begin{aligned}
+  T(n) &= 2\,T\!\left(\frac{n}{2}\right) + c\,n\log_2 n \\
+       &\le 2 \cdot 2c\, \frac{n}{2} \left(\log_2 n - 1\right)^2 + c\,n\log_2 n \\
+       &= 2c\,n \left(\log_2^2 n - 2\log_2 n + 1\right) + c\,n\log_2 n \\
+       &= 2c\,n\log_2^2 n - 3c\,n\log_2 n + 2c\,n.
+\end{aligned}
+\]
+Para que esto sea a lo más $2c\,n\log_2^2 n$, lo que sobra tiene que ser negativo o cero:
+$-3c\,n\log_2 n + 2c\,n \le 0$. Dividiendo por $c\,n$, eso es $3\log_2 n \ge 2$, que se
+cumple porque $\log_2 n \ge 2$ para $n \ge 4$. Por lo tanto, $T(n) \le 2c\,n\log_2^2 n$
+con la misma constante, como exige el método.
+
+\textbf{Cota inferior.} Conjetura: $T(n) \ge \frac{c}{2}\, n \log_2^2 n$ para todo $n \ge 1$.
+
+\emph{Caso base, $n = 1$.} $T(1) = c$, y la cota vale
+$\frac{c}{2} \cdot 1 \cdot 0 = 0$. Se cumple $c \ge 0$.
+
+\emph{Paso inductivo.} Sea $n \ge 2$ y supongamos que la cota vale para $n/2$. Sustituyendo:
+\[
+\begin{aligned}
+  T(n) &= 2\,T\!\left(\frac{n}{2}\right) + c\,n\log_2 n \\
+       &\ge 2 \cdot \frac{c}{2}\, \frac{n}{2} \left(\log_2 n - 1\right)^2 + c\,n\log_2 n \\
+       &= \frac{c}{2}\, n \left(\log_2^2 n - 2\log_2 n + 1\right) + c\,n\log_2 n \\
+       &= \frac{c}{2}\, n\log_2^2 n + \frac{c}{2}\, n.
+\end{aligned}
+\]
+Como $\frac{c}{2}\, n \ge 0$, queda $T(n) \ge \frac{c}{2}\, n\log_2^2 n$ con la misma
+constante.
+
+Juntando ambas cotas, para todo $n \ge 2$:
+\[
+  \frac{c}{2} \cdot n\log_2^2 n \le T(n) \le 2c \cdot n\log_2^2 n.
+\]
+Según la definición vista en clases, $T(n) \in \T{n\log^2 n}$ si existen dos constantes
+$c_1, c_2 > 0$ y un $n_0 \in \N$ tales que $0 \le c_1 n\log_2^2 n \le T(n) \le c_2 n\log_2^2 n$
+para todo $n \ge n_0$. Luego, $c_1 = c/2$ y $c_2 = 2c$, y las dos cotas valen desde
+$n = 2$, así que $n_0 = 2$. Por lo tanto, $T(n) \in \T{n \log^2 n}$.
+
+% ============================================================
+\subsubsection*{(d) Mediana en tiempo lineal}
+
+Si la mediana se pudiera obtener y los puntos se pudieran particionar en $\T{n}$, el
+único cambio estaría en el trabajo no recursivo: el ordenamiento, de costo $\T{n\log n}$,
+se reemplaza por una operación de costo $\T{n}$. Las dos llamadas recursivas siguen igual.
+La nueva recurrencia es
+\[
+  T(n) = 2\,T\!\left(\frac{n}{2}\right) + c\,n.
+\]
+Es la misma recurrencia de Merge Sort, que se resolvió en clases: cada nivel del árbol
+cuesta $c\,n$ y hay $\log_2 n + 1$ niveles, así que
+\[
+  T(n) \in \T{n\log n}.
+\]
+El costo de construcción baja de $\T{n\log^2 n}$ a $\T{n\log n}$, es decir, se ahorra un
+factor $\log n$. Ese factor venía de ordenar en cada llamada, cuando para elegir la
+mediana no hace falta ordenar todo. Una forma de lograrlo es el algoritmo de selección
+con mediana de medianas, cuya recurrencia $T(n/5) + T(7n/10) + n$ se vio en clases y da
+$\T{n}$.
+

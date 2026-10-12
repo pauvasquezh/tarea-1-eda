@@ -1,0 +1,172 @@
+\subsection{Algoritmo C}
+\label{sec:act1c}
+
+\begin{enunciado}
+Una capa simplificada de auto-atención recibe una matriz $X \in \R^{n\times d}$ y utiliza
+matrices de pesos $W_Q, W_K, W_V \in \R^{d \times d}$:
+\begin{lstlisting}[language={}, numbers=none, frame=none, backgroundcolor={}]
+Q = X * W_Q
+K = X * W_K
+V = X * W_V
+S = Q * transpose(K)
+A = row_softmax(S)
+Y = A * V
+\end{lstlisting}
+Suponga multiplicación matricial clásica.
+\begin{enumerate}[label=(\alph*)]
+  \item Determine el costo de cada línea en función de $n$ y $d$.
+  \item Obtenga el costo total en notación $\Theta$ sin descartar ninguno de los dos
+        parámetros.
+  \item Determine qué término domina cuando $n \gg d$ y qué término domina cuando
+        $d \gg n$.
+  \item Determine el espacio adicional requerido por las matrices intermedias y explique
+        por qué esta cantidad puede ser relevante incluso si solamente se estudia tiempo
+        de ejecución.
+\end{enumerate}
+\end{enunciado}
+
+Contamos las operaciones aritméticas que hace cada línea: sumas, multiplicaciones,
+divisiones y exponenciales. De acuerdo al enunciado, cada una cuesta $\T{1}$, y también
+cada lectura o escritura de una posición de una matriz. Llamamos $T(n, d)$ al costo total.
+Como el algoritmo trabaja con matrices, el costo queda en función de sus dos dimensiones,
+$n$ y $d$, y ninguna de las dos se trata como constante.
+
+% ============================================================
+\subsubsection*{(a) Costo de cada línea}
+
+Casi todas las líneas son multiplicaciones de matrices, así que primero vemos cuánto
+cuesta multiplicar dos matrices con el método clásico. Sea $P$ una matriz de $p \times q$
+y $R$ una de $q \times r$. El producto $C = P \cdot R$ tiene $p \times r$ posiciones, y
+cada posición se calcula como
+\[
+  C[a][b] = P[a][1]\, R[1][b] + P[a][2]\, R[2][b] + \cdots + P[a][q]\, R[q][b].
+\]
+Calcular una posición requiere $q$ multiplicaciones y $q - 1$ sumas, es decir, $\T{q}$
+operaciones. Como hay $p \cdot r$ posiciones, el producto completo cuesta
+\[
+  \T{p \cdot q \cdot r}.
+\]
+Por ejemplo, multiplicar dos matrices de $n \times n$ cuesta $\T{n^3}$, como se vio en
+clases con el algoritmo de Strassen.
+
+Ahora aplicamos esto a cada línea, mirando las dimensiones de cada matriz.
+
+\textbf{Líneas 1 a 3: $Q$, $K$ y $V$.} $X$ es de $n \times d$ y cada matriz de pesos es
+de $d \times d$. Con $p = n$, $q = d$ y $r = d$, cada producto cuesta $\T{n d^2}$, y el
+resultado es una matriz de $n \times d$.
+
+\textbf{Línea 4: $S$.} Primero se calcula la transpuesta de $K$, que es de $d \times n$.
+Transponer es copiar cada una de las $n d$ posiciones en su nuevo lugar, así que cuesta
+$\T{n d}$. Después se multiplica $Q$, de $n \times d$, por $K^T$, de $d \times n$. Con
+$p = n$, $q = d$ y $r = n$, el producto cuesta $\T{n^2 d}$, y el resultado $S$ es de
+$n \times n$.
+
+\textbf{Línea 5: $A$.} La función \texttt{row\_softmax} se aplica a cada fila de $S$ por
+separado. Para una fila $s = (s_1, \dots, s_n)$, cada posición del resultado es
+\[
+  \frac{e^{s_b}}{e^{s_1} + e^{s_2} + \cdots + e^{s_n}}.
+\]
+Para una fila hay que calcular $n$ exponenciales, sumarlas ($n - 1$ sumas) y hacer $n$
+divisiones, así que una fila cuesta $\T{n}$. Como $S$ tiene $n$ filas, la línea completa
+cuesta $\T{n^2}$.
+
+\textbf{Línea 6: $Y$.} Se multiplica $A$, de $n \times n$, por $V$, de $n \times d$. Con
+$p = n$, $q = n$ y $r = d$, el producto cuesta $\T{n^2 d}$.
+
+\begin{center}
+\begin{tabular}{llcc}
+  \toprule
+  línea & operación & dimensiones & costo \\
+  \midrule
+  1 & $Q = X \cdot W_Q$ & $(n \times d)(d \times d)$ & $\T{n d^2}$ \\
+  2 & $K = X \cdot W_K$ & $(n \times d)(d \times d)$ & $\T{n d^2}$ \\
+  3 & $V = X \cdot W_V$ & $(n \times d)(d \times d)$ & $\T{n d^2}$ \\
+  4 & $K^T$             & $(n \times d) \to (d \times n)$ & $\T{n d}$ \\
+    & $S = Q \cdot K^T$ & $(n \times d)(d \times n)$ & $\T{n^2 d}$ \\
+  5 & $A = \texttt{row\_softmax}(S)$ & $n \times n$ & $\T{n^2}$ \\
+  6 & $Y = A \cdot V$   & $(n \times n)(n \times d)$ & $\T{n^2 d}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% ============================================================
+\subsubsection*{(b) Costo total}
+
+El costo total es la suma del costo de cada línea:
+\[
+  T(n, d) = 3\,\T{n d^2} + \T{n d} + 2\,\T{n^2 d} + \T{n^2}.
+\]
+Dos de estos términos son más pequeños que otros y se pueden absorber. Como $d \ge 1$, se
+tiene $n d \le n d^2$, así que el costo de transponer queda absorbido por el de las
+líneas 1 a 3. De la misma forma, $n^2 \le n^2 d$, así que el costo del softmax queda
+absorbido por el de las líneas 4 y 6. Los términos $n d^2$ y $n^2 d$, en cambio, no se
+pueden comparar sin saber cuál de los dos parámetros es más grande, así que ninguno se
+descarta:
+\[
+  T(n, d) \in \T{n d^2 + n^2 d} = \T{n d\,(n + d)}.
+\]
+
+Para justificarlo usamos la misma idea de la definición vista en clases, ahora con dos
+parámetros: buscamos constantes $c_1, c_2 > 0$ tales que
+$c_1 (n d^2 + n^2 d) \le T(n, d) \le c_2 (n d^2 + n^2 d)$ para todo $n, d \ge 1$.
+
+\textbf{Cota inferior.} Solo contando las multiplicaciones de las líneas 1 a 3 ($3 n d^2$)
+y de las líneas 4 y 6 ($2 n^2 d$), ya se tiene
+\[
+  T(n, d) \ge 3 n d^2 + 2 n^2 d \ge n d^2 + n^2 d.
+\]
+
+\textbf{Cota superior.} Cada línea cuesta a lo más una constante $c$ por su término. Usando
+$n d \le n d^2$ y $n^2 \le n^2 d$:
+\[
+  T(n, d) \le c\,(3 n d^2 + n d + 2 n^2 d + n^2) \le c\,(4 n d^2 + 3 n^2 d)
+          \le 4c\,(n d^2 + n^2 d).
+\]
+Luego, $c_1 = 1$ y $c_2 = 4c$, y las dos cotas valen para todo $n, d \ge 1$. Por lo
+tanto, $T(n, d) \in \T{n d^2 + n^2 d}$.
+
+% ============================================================
+\subsubsection*{(c) Qué término domina}
+
+Para comparar los dos términos los dividimos:
+\[
+  \frac{n^2 d}{n d^2} = \frac{n}{d}.
+\]
+
+\textbf{Cuando $n \gg d$} (muchas filas y pocas columnas), el cociente $n/d$ es grande, así que $n^2 d$ es mucho mayor
+que $n d^2$. Domina el término $n^2 d$, que viene de las líneas 4 y 6, y
+$T(n, d) \in \T{n^2 d}$.
+
+\textbf{Cuando $d \gg n$} (pocas filas con vectores muy largos), el cociente $n/d$ es
+pequeño, así que $n d^2$ es mucho mayor que $n^2 d$. Domina el término $n d^2$, que viene
+de las líneas 1 a 3, y $T(n, d) \in \T{n d^2}$.
+
+% ============================================================
+\subsubsection*{(d) Espacio adicional}
+
+Las matrices intermedias son las que se calculan para llegar a $Y$, sin contar la entrada
+$X$, los pesos ni la salida $Y$. Cada matriz ocupa tantas posiciones como filas por
+columnas:
+\begin{center}
+\begin{tabular}{lcc}
+  \toprule
+  matriz & dimensiones & espacio \\
+  \midrule
+  $Q$, $K$, $V$ & $n \times d$ cada una & $3 n d$ \\
+  $K^T$         & $d \times n$ & $n d$ \\
+  $S$           & $n \times n$ & $n^2$ \\
+  $A$           & $n \times n$ & $n^2$ \\
+  \midrule
+  \multicolumn{2}{c}{Total} & $4 n d + 2 n^2$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Por lo tanto, el espacio adicional es $\T{n d + n^2}$. Si $A$ se escribe encima de $S$,
+o si $K^T$ no se copia y se lee $K$ por columnas, el total baja, pero sigue siendo
+$\T{n d + n^2}$. El término $n^2$ viene de $S$ y $A$, y no depende de $d$.
+
+\textbf{Por qué importa aunque solo se estudie el tiempo.} Escribir una matriz cuesta
+tiempo. Para llenar las $n^2$ posiciones de $S$ y de $A$ hay que escribir cada una al
+menos una vez, así que el espacio de las matrices intermedias es también un piso para el
+tiempo: el algoritmo no puede tardar menos que lo que ocupa.
+

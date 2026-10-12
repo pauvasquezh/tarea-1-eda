@@ -1,0 +1,195 @@
+\subsection{Algoritmo B}
+\label{sec:act1b}
+
+\begin{enunciado}
+\begin{lstlisting}[language={}, numbers=none, frame=none, backgroundcolor={}]
+Procedure B(n)
+    m = n
+    while m >= 1
+        for i = 1 to m
+            j = 1
+            while j <= m
+                Operation()        // costo Theta(1)
+                j = 2*j
+        m = floor(m/2)
+\end{lstlisting}
+\begin{enumerate}[label=(\alph*)]
+  \item Exprese el trabajo realizado para un valor fijo de $m$.
+  \item Escriba el costo total como una sumatoria sobre los distintos valores de $m$.
+  \item Determine una cota $\Theta$ ajustada y justifique su respuesta.
+\end{enumerate}
+\end{enunciado}
+
+Contamos cuántas veces se ejecuta \texttt{Operation()} y llamamos $T(n)$ a ese número.
+Cada iteración del while interno ejecuta un \texttt{Operation()}, una asignación
+\texttt{j = 2*j} y una comparación \texttt{j <= m}, de modo que cada iteración cuesta
+$\T{1}$, de acuerdo al enunciado. Las demás operaciones (asignar \texttt{j = 1}, avanzar
+el for, la última comparación de cada while y actualizar $m$) se ejecutan una vez por
+cada vuelta del for o del while externo. Cada una de esas vueltas ejecuta
+\texttt{Operation()} al menos una vez, porque $j$ parte en $1$ y $m \ge 1$. Por lo tanto,
+esas operaciones extra no cambian el orden del costo, y basta con contar
+\texttt{Operation()}.
+
+% ============================================================
+\subsubsection*{(a) Trabajo para un valor fijo de $m$}
+
+Fijamos un valor de $m$ y contamos cuántas veces se ejecuta \texttt{Operation()} mientras
+$m$ tiene ese valor. A ese número lo llamamos $W(m)$.
+
+Primero contamos las vueltas del while interno. Introducimos la variable $r$ como la
+cantidad de vueltas completadas hasta el momento. Antes de la primera vuelta, $r = 0$ y
+$j = 1$. Cada vuelta termina con \texttt{j = 2*j}, así que $j$ se multiplica por $2$ una
+vez por vuelta:
+\begin{center}
+\begin{tabular}{cc}
+  \toprule
+  vueltas ya completadas & valor de $j$ \\
+  \midrule
+  $0$ & $1$ \\
+  $1$ & $2$ \\
+  $2$ & $4 = 2^2$ \\
+  $3$ & $8 = 2^3$ \\
+  $\vdots$ & $\vdots$ \\
+  $r$ & $2^r$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Es decir, después de $r$ vueltas, $j = 2^r$.
+
+En ese momento el while vuelve a evaluar su condición con $j = 2^r$. Si la condición se
+cumple, se ejecuta una vuelta más. Si no, el while termina. Entonces, se da una vuelta
+más mientras se cumpla
+\[
+  2^r \le m.
+\]
+Como $j$ solo crece, una vez que la condición falla ya no vuelve a cumplirse. Por eso se
+ejecutan las vueltas de $r = 0, 1, 2, \dots$ seguidas, hasta el último $r$ que cumple la
+desigualdad.
+
+Lo que queremos saber es cuántas vueltas da el while. Como se da una vuelta más mientras
+se cumpla $2^r \le m$, contar las vueltas es lo mismo que contar cuántos valores de $r$
+cumplen esa condición. Para eso despejamos $r$. Aplicando logaritmo a ambos lados:
+\[
+  2^r \le m \iff r \le \log_2 m.
+\]
+
+Como $r$ cuenta vueltas, solo puede tomar valores enteros: $0, 1, 2, \dots$ El mayor de
+ellos que cumple la condición es $\log_2 m$ redondeado hacia abajo, que se escribe
+$\floor{\log_2 m}$. Por lo tanto, $r$ puede valer $0, 1, \dots, \floor{\log_2 m}$, y el
+while interno da
+\[
+  \floor{\log_2 m} + 1
+\]
+vueltas, donde el $1$ se suma porque la cuenta parte en $r = 0$.
+
+Ahora miramos el for. El for repite el while interno $m$ veces, una por cada
+$i = 1, 2, \dots, m$. Cada vez, $j$ vuelve a partir en $1$, sin importar el valor de $i$,
+así que el while da siempre $\floor{\log_2 m} + 1$ vueltas. Como todos los valores de
+$i$ dan la misma cantidad de vueltas, esta vez sí podemos multiplicar:
+\[
+  W(m) = m \left( \floor{\log_2 m} + 1 \right).
+\]
+
+\noindent\begin{minipage}{\linewidth}
+\paragraph{Comprobación con $n = 8$.}
+Los valores de $m$ son $8$, $4$, $2$ y $1$ (ver la parte (b)). Al ejecutar el algoritmo a
+mano, el trabajo coincide con la fórmula:
+\begin{center}
+\begin{tabular}{cccccc}
+  \toprule
+  $m$ & valores de $j$ & $\log_2 m$ & $\floor{\log_2 m} + 1$ & vueltas del for & $W(m)$ \\
+  \midrule
+  8 & 1, 2, 4, 8 & 3 & 4 & 8 & $8 \cdot 4 = 32$ \\
+  4 & 1, 2, 4    & 2 & 3 & 4 & $4 \cdot 3 = 12$ \\
+  2 & 1, 2       & 1 & 2 & 2 & $2 \cdot 2 = 4$ \\
+  1 & 1          & 0 & 1 & 1 & $1 \cdot 1 = 1$ \\
+  \midrule
+  \multicolumn{5}{c}{Total} & 49 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{minipage}
+
+% ============================================================
+\subsubsection*{(b) Costo total como sumatoria}
+
+Ahora vemos qué valores toma $m$. Parte en $n$, y al final de cada vuelta del while
+externo se divide por $2$ y se redondea hacia abajo. Introducimos la variable $t$ como la
+cantidad de vueltas completadas del while externo:
+\begin{center}
+\begin{tabular}{cc}
+  \toprule
+  vueltas ya completadas & valor de $m$ \\
+  \midrule
+  $0$ & $n$ \\
+  $1$ & $\floor{n/2}$ \\
+  $2$ & $\floor{n/4}$ \\
+  $3$ & $\floor{n/8}$ \\
+  $\vdots$ & $\vdots$ \\
+  $t$ & $\floor{n/2^t}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+Dividir por $2$ y redondear hacia abajo dos veces da lo mismo que dividir por $4$ y
+redondear una vez. Por eso, después de $t$ vueltas, $m = \floor{n/2^t}$.
+
+El while externo termina cuando $m$ llega a $0$, es decir, cuando $2^t > n$. Entonces se
+da una vuelta más mientras $2^t \le n$. Aplicando logaritmo a ambos lados, eso es
+$t \le \log_2 n$. Como $t$ es entero, el último valor es $t = \floor{\log_2 n}$.
+
+En cada vuelta del while externo se hace el trabajo $W(m)$ de la parte (a) con el valor
+de $m$ de esa vuelta. Así que el total es la suma del trabajo de cada vuelta:
+\[
+  T(n) = W(n) + W\!\left(\floor*{\frac{n}{2}}\right) + W\!\left(\floor*{\frac{n}{4}}\right)
+         + \cdots
+\]
+Escrito como sumatoria y reemplazando $W$ por la fórmula de la parte (a):
+\[
+  T(n) = \sum_{t=0}^{\floor{\log_2 n}} W\!\left(\floor*{\frac{n}{2^t}}\right)
+       = \sum_{t=0}^{\floor{\log_2 n}} \floor*{\frac{n}{2^t}}
+         \left( \floor*{\log_2 \floor*{\frac{n}{2^t}}} + 1 \right).
+\]
+Con $n = 8$, esto da $32 + 12 + 4 + 1 = 49$, como se mostró en (a).
+
+% ============================================================
+\subsubsection*{(c) Cota ajustada}
+
+\textbf{Cota superior.} Buscamos una expresión que sea siempre mayor o igual que $T(n)$,
+para cualquier $n$. Como $m$ nunca es mayor que $n$, el while interno nunca da más
+vueltas que cuando $m = n$:
+\[
+  \floor*{\log_2 \floor*{\frac{n}{2^t}}} + 1 \le \log_2 n + 1.
+\]
+Reemplazando en cada término de la suma y sacando $\log_2 n + 1$ como factor común:
+\[
+  T(n) \le \left( \log_2 n + 1 \right) \left( n + \floor*{\frac{n}{2}}
+       + \floor*{\frac{n}{4}} + \cdots \right).
+\]
+Lo que queda en el segundo paréntesis es la misma suma de la parte (c) del Algoritmo A,
+que es a lo más $2n$. Reemplazando este valor:
+\[
+  T(n) \le 2n \left( \log_2 n + 1 \right).
+\]
+
+\textbf{Cota inferior.} Ahora buscamos una expresión que sea siempre menor o igual que
+$T(n)$, para cualquier $n$. El primer término de la suma, $W(n) = n(\floor{\log_2 n} + 1)$,
+es el trabajo de la primera vuelta del while externo, y los demás términos no pueden ser
+negativos. Además, $\floor{\log_2 n} + 1$ es mayor que $\log_2 n$, porque redondear hacia
+abajo quita menos de $1$. Por lo tanto, $T(n) \ge n \log_2 n$.
+
+Juntando ambas cotas:
+\[
+  n \log_2 n \le T(n) \le 2n \left( \log_2 n + 1 \right).
+\]
+Para escribir la cota superior como un múltiplo de $n\log_2 n$, usamos que para $n \ge 2$
+se tiene $\log_2 n \ge 1$, así que $\log_2 n + 1 \le 2\log_2 n$. Entonces
+$T(n) \le 4n\log_2 n$ para todo $n \ge 2$.
+
+Según la definición vista en clases, $T(n) \in \T{n \log n}$ si existen dos constantes
+$c_1, c_2 > 0$ y un $n_0 \in \N$ tales que
+$0 \le c_1\, n\log_2 n \le T(n) \le c_2\, n\log_2 n$ para todo $n \ge n_0$.
+\[
+  1 \cdot n\log_2 n \le T(n) \le 4 \cdot n\log_2 n.
+\]
+Luego, $c_1 = 1$ y $c_2 = 4$, y las dos cotas valen desde $n = 2$, así que $n_0 = 2$. Por
+lo tanto, $T(n) \in \T{n \log n}$.

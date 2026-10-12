@@ -1,0 +1,182 @@
+\subsection{Árbol de recursión: divisiones de distinto tamaño}
+\label{sec:act3-1}
+
+\begin{enunciado}
+Considere el siguiente algoritmo:
+\begin{lstlisting}[language={}, numbers=none, frame=none, backgroundcolor={}]
+Procedure RecursiveFilter(A, n)
+    if n <= 1
+        return
+
+    for i = 1 to n
+        Process(A[i])          // costo Theta(1)
+
+    RecursiveFilter(A[1 ... floor(n/2)], floor(n/2))
+    RecursiveFilter(A[1 ... floor(n/4)], floor(n/4))
+\end{lstlisting}
+\begin{enumerate}[label=(\alph*)]
+  \item Formule la recurrencia de tiempo.
+  \item Dibuje al menos los primeros tres niveles del árbol de recursión, indicando el
+        tamaño de cada subproblema y el trabajo no recursivo de cada nodo.
+  \item Determine una cota superior para el trabajo agregado de cada nivel.
+  \item Utilizando el árbol, obtenga una cota $\Theta$ para el tiempo total.
+  \item Explique por qué la forma estándar del Teorema Maestro no se aplica directamente a
+        esta recurrencia.
+\end{enumerate}
+\end{enunciado}
+
+% ============================================================
+\subsubsection*{(a) Recurrencia de tiempo}
+
+Llamamos $T(n)$ al tiempo que tarda \texttt{RecursiveFilter} con un arreglo de tamaño
+$n$. Recorremos el pseudocódigo línea por línea.
+
+Si $n \le 1$, el algoritmo solo hace la comparación \texttt{n <= 1} y termina. Eso cuesta
+una constante, que llamamos $c$.
+
+Si $n > 1$, el algoritmo primero hace la misma comparación, que cuesta una constante.
+Después viene el for, que da $n$ vueltas. En cada vuelta se ejecuta \texttt{Process}, de
+costo $\T{1}$, y se avanza el índice, así que el for cuesta $\T{n}$. Al final hay dos
+llamadas recursivas: una con un arreglo de tamaño $\floor{n/2}$, que tarda
+$T(\floor{n/2})$, y otra con un arreglo de tamaño $\floor{n/4}$, que tarda
+$T(\floor{n/4})$. Suponemos que pasar el subarreglo $A[1 \dots k]$ no copia los datos,
+sino que solo indica dónde termina, así que cuesta $\T{1}$.
+La comparación y el for juntos cuestan a lo más $c\,n$ para alguna constante $c$, que
+podemos tomar igual a la del caso base. Entonces:
+\[
+  T(n) =
+  \begin{cases}
+    c, & n \le 1, \\[4pt]
+    T\!\left(\floor*{\dfrac{n}{2}}\right) + T\!\left(\floor*{\dfrac{n}{4}}\right) + c\,n, & n > 1.
+  \end{cases}
+\]
+El término $T(\floor{n/2})$ viene de la primera llamada recursiva, $T(\floor{n/4})$ de la
+segunda, y $c\,n$ del for y la comparación. En adelante omitimos los pisos y escribimos
+\[
+  T(n) = T\!\left(\frac{n}{2}\right) + T\!\left(\frac{n}{4}\right) + c\,n.
+\]
+Así los tamaños del árbol quedan como $n/2$, $n/4$, $n/8$, y la suma de cada nivel es
+fácil de calcular. Esto no cambia el resultado. El piso solo achica los tamaños, así que
+la cota superior que obtenemos sin pisos también vale con ellos, y la cota inferior solo
+usa la raíz, que tiene tamaño $n$.
+
+% ============================================================
+\subsubsection*{(b) Árbol de recursión}
+
+Cada nodo del árbol es una llamada. Dentro de cada nodo anotamos el tamaño del
+subproblema y, debajo, su trabajo no recursivo, que es $c$ por el tamaño. Cada nodo de
+tamaño $s$ tiene dos hijos, de tamaños $s/2$ y $s/4$. En la tabla de abajo va la suma de cada
+nivel.
+
+\begin{center}
+\begin{forest}
+  for tree={
+    draw, rounded corners, align=center, font=\small,
+    l sep=12mm, s sep=4mm, inner sep=3pt, edge={->}
+  }
+  [{$n$\\[1pt]$c\,n$}
+    [{$n/2$\\[1pt]$c\,n/2$}
+      [{$n/4$\\[1pt]$c\,n/4$}]
+      [{$n/8$\\[1pt]$c\,n/8$}]
+    ]
+    [{$n/4$\\[1pt]$c\,n/4$}
+      [{$n/8$\\[1pt]$c\,n/8$}]
+      [{$n/16$\\[1pt]$c\,n/16$}]
+    ]
+  ]
+\end{forest}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ccl}
+  \toprule
+  nivel & tamaños de los nodos & trabajo del nivel \\
+  \midrule
+  0 & $n$ & $c\,n$ \\[2pt]
+  1 & $\frac{n}{2},\ \frac{n}{4}$ & $c\left(\frac12 + \frac14\right) n = \frac34\, c\,n$ \\[4pt]
+  2 & $\frac{n}{4},\ \frac{n}{8},\ \frac{n}{8},\ \frac{n}{16}$
+    & $c\left(\frac14 + \frac18 + \frac18 + \frac1{16}\right) n = \frac{9}{16}\, c\,n
+       = \left(\frac34\right)^2 c\,n$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+La rama de más a la izquierda siempre divide por $2$, así que llega a tamaño $1$ después
+de $\log_2 n$ niveles. La de más a la derecha siempre divide por $4$, así que llega antes,
+después de $\log_4 n$ niveles. Por eso el árbol no es completo: a partir del nivel
+$\log_4 n$ algunas ramas ya terminaron.
+
+% ============================================================
+\subsubsection*{(c) Cota superior para el trabajo de cada nivel}
+
+En la tabla se ve que el trabajo de cada nivel es $\frac34$ del anterior. La razón es que
+un nodo de tamaño $s$ tiene hijos de tamaños $s/2$ y $s/4$, que suman
+\[
+  \frac{s}{2} + \frac{s}{4} = \frac34\, s.
+\]
+Es decir, al bajar un nivel, la suma de los tamaños se multiplica por $\frac34$. Como el
+trabajo de cada nodo es $c$ por su tamaño, el trabajo del nivel también se multiplica
+por $\frac34$. Cuando una rama termina, sus nodos dejan de aparecer en los niveles
+siguientes, y el redondeo hacia abajo solo achica los tamaños, así que el trabajo de un
+nivel nunca supera ese valor. Por lo tanto, el trabajo del nivel $i$ cumple
+\[
+  \text{trabajo del nivel } i \le \left(\frac34\right)^{i} c\,n.
+\]
+
+% ============================================================
+\subsubsection*{(d) Cota $\Theta$ para el tiempo total}
+
+\textbf{Cota superior.} El tiempo total es la suma del trabajo de todos los niveles.
+Usando la cota de (c) y dejando que la suma siga para siempre:
+\[
+  T(n) \le c\,n + \frac34\, c\,n + \left(\frac34\right)^2 c\,n + \cdots
+       = c\,n \left( 1 + \frac34 + \left(\frac34\right)^2 + \cdots \right).
+\]
+Lo que queda entre paréntesis es una serie geométrica de razón $3/4$:
+\[
+  1 + \frac34 + \left(\frac34\right)^2 + \cdots = \frac{1}{1 - 3/4} = 4.
+\]
+Reemplazando este valor, el trabajo de los nodos internos es a lo más $4c\,n$.
+
+Falta sumar las hojas, que son las llamadas con $n \le 1$. Se suman aparte porque una
+hoja no entra al for. Solo hace la comparación \texttt{n <= 1}, así que cuesta $c$ aunque
+su tamaño sea $0$, y la cota de (c), que cuenta $c$ por el tamaño, no la incluye bien.
+
+Cada nodo interno tiene tamaño al menos $2$, así que su trabajo es al menos $2c$. Como el
+trabajo de todos los nodos internos suma a lo más $4c\,n$, hay a lo más $2n$ nodos
+internos. Cada nodo interno tiene dos hijos, así que hay a lo más $4n$ hojas, y entre
+todas cuestan a lo más $4c\,n$. Por lo tanto,
+\[
+  T(n) \le 4c\,n + 4c\,n = 8c\,n.
+\]
+
+\textbf{Cota inferior.} La raíz sola ya hace un trabajo de $c\,n$, y los demás nodos no
+pueden restar. Por lo tanto, $T(n) \ge c\,n$.
+
+Juntando ambas cotas:
+\[
+  c \cdot n \le T(n) \le 8c \cdot n.
+\]
+Según la definición vista en clases, $T(n) \in \T{n}$ si existen dos constantes
+$c_1, c_2 > 0$ y un $n_0 \in \N$ tales que $0 \le c_1 n \le T(n) \le c_2 n$ para todo
+$n \ge n_0$. Luego, $c_1 = c$ y $c_2 = 8c$, y las dos cotas valen desde $n = 2$, así que
+$n_0 = 2$. Por lo tanto, $T(n) \in \T{n}$.
+
+El trabajo total es del mismo orden que el de la raíz. Como cada nivel hace $\frac34$ del
+trabajo del anterior, el trabajo decrece geométricamente y la raíz domina, igual que en
+el ejemplo de clases con $T(n) = 3T(n/4) + c\,n^2$.
+
+% ============================================================
+\subsubsection*{(e) Por qué no se aplica el Teorema Maestro}
+
+La forma estándar del Teorema Maestro es para recurrencias del tipo
+\[
+  T(n) = a\, T\!\left(\frac{n}{b}\right) + f(n),
+\]
+donde los $a$ subproblemas tienen todos el mismo tamaño $n/b$. En nuestra recurrencia hay
+dos subproblemas de tamaños distintos, $n/2$ y $n/4$, así que no existe un único $b$ que
+la describa. Por eso no se puede comparar $f(n)$ con $n^{\log_b a}$, que es lo que hace
+el teorema. Este es justamente uno de los casos que se vieron en clases como
+``subproblemas de tamaños distintos'', junto con el ejemplo $T(n/3) + T(2n/3) + n$, que
+también se resuelve con el árbol de recursión.
+

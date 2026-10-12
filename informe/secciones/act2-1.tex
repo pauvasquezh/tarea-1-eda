@@ -1,0 +1,68 @@
+\subsection{Demostración de una cota \texorpdfstring{$\Theta$}{Theta}}
+\label{sec:act2-1}
+
+\begin{enunciado}
+Demuestre por definición que
+\[
+  f(n) = 4n^2 \log_2 n + 3n^2 + 7n + 12
+\]
+pertenece a $\T{n^2 \log_2 n}$. Su demostración debe entregar valores explícitos
+$c_1 > 0$, $c_2 > 0$ y $n_0$ tales que, para todo $n \ge n_0$,
+\[
+  c_1 n^2 \log_2 n \le f(n) \le c_2 n^2 \log_2 n.
+\]
+\end{enunciado}
+
+Según la definición vista en clases, $f(n) \in \T{n^2 \log_2 n}$ si existen dos
+constantes $c_1, c_2 > 0$ y un $n_0 \in \N$ tales que
+$0 \le c_1 n^2 \log_2 n \le f(n) \le c_2 n^2 \log_2 n$ para todo $n \ge n_0$.
+
+\textbf{Cota inferior.} Buscamos una constante $c_1$ tal que $c_1 n^2 \log_2 n$ sea
+siempre menor o igual que $f(n)$. Para $n \ge 1$, los términos $3n^2$, $7n$ y $12$ son
+positivos. Si los quitamos, lo que queda es menor que $f(n)$:
+\[
+  f(n) = 4n^2 \log_2 n + 3n^2 + 7n + 12 \ge 4n^2 \log_2 n.
+\]
+Además, $\log_2 n \ge 0$ para $n \ge 1$, así que $4n^2 \log_2 n \ge 0$. Por lo tanto,
+$c_1 = 4$ sirve para todo $n \ge 1$.
+
+\textbf{Cota superior.} Buscamos una constante $c_2$ tal que $c_2 n^2 \log_2 n$ sea siempre
+mayor o igual que $f(n)$. Para acotar cada término de $f(n)$ por un múltiplo de
+$n^2 \log_2 n$ necesitamos que $\log_2 n \ge 1$, y eso ocurre cuando $n \ge 2$.
+Con $n \ge 2$:
+\begin{itemize}
+  \item $4n^2 \log_2 n$ ya es un múltiplo de $n^2 \log_2 n$.
+  \item $3n^2 \le 3n^2 \log_2 n$, porque $\log_2 n \ge 1$.
+  \item $7n \le 7n^2 \le 7n^2 \log_2 n$, porque $n \le n^2$ y $\log_2 n \ge 1$.
+  \item $12 \le 12n^2 \le 12n^2 \log_2 n$, porque $1 \le n^2$ y $\log_2 n \ge 1$.
+\end{itemize}
+Sumando las cuatro desigualdades:
+\[
+  f(n) \le 4n^2 \log_2 n + 3n^2 \log_2 n + 7n^2 \log_2 n + 12n^2 \log_2 n
+       = 26\, n^2 \log_2 n.
+\]
+Por lo tanto, $c_2 = 26$ sirve para todo $n \ge 2$.
+
+Juntando ambas cotas, para todo $n \ge 2$:
+\[
+  4 \cdot n^2 \log_2 n \le f(n) \le 26 \cdot n^2 \log_2 n.
+\]
+Luego, $c_1 = 4$ y $c_2 = 26$, y las dos cotas valen desde $n = 2$, así que $n_0 = 2$. Por
+lo tanto, $f(n) \in \T{n^2 \log_2 n}$.
+
+\noindent\begin{minipage}{\linewidth}
+\paragraph{Comprobación.}
+Con algunos valores de $n$, las tres cantidades quedan en el orden esperado:
+\begin{center}
+\begin{tabular}{rrrr}
+  \toprule
+  $n$ & $4\, n^2 \log_2 n$ & $f(n)$ & $26\, n^2 \log_2 n$ \\
+  \midrule
+  2 & 16  & 54   & 104  \\
+  4 & 128 & 216  & 832  \\
+  8 & 768 & 1028 & 4992 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{minipage}
+

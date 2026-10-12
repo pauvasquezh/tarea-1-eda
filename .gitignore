@@ -1,0 +1,12 @@
+# LaTeX
+informe/build/
+informe/main.pdf
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# macOS
+.DS_Store
