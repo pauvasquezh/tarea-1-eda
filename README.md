@@ -52,3 +52,16 @@ cd informe && latexmk main.tex
 ```
 
 Todos los comandos se ejecutan desde la raíz del repositorio.
+
+## Declaración de uso de inteligencia artificial
+
+En este trabajo usamos herramientas de inteligencia artificial generativa con tres fines.
+El primero fue revisar las demostraciones, para detectar pasos incompletos o errores en
+los cálculos y en las justificaciones. El segundo fue crear el informe en LaTeX, es decir,
+dar formato al documento, a las tablas, a las ecuaciones y a los diagramas. El tercero fue
+crear este repositorio, es decir, organizar los archivos, redactar las instrucciones de uso
+y publicar el código.
+
+Los planteamientos, los resultados y las conclusiones fueron realizados y revisados por los
+integrantes del grupo, que asumen la responsabilidad por el contenido del informe y del
+repositorio.
