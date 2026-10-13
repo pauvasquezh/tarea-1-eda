@@ -6,6 +6,7 @@ iterativos y recursivos, algoritmos Dividir para Conquistar, y una implementaci�
 **k-d tree** para búsqueda de vecinos cercanos.
 
 - **Informe:** [`informe.pdf`](informe.pdf)
+- **Presentación:** [`presentacion.pdf`](presentacion.pdf)
 - **Integrantes:** Paula Vásquez-Henríquez y Guillermo Zieballe
 - **Profesora:** Cecilia Hernández
 
@@ -13,21 +14,29 @@ iterativos y recursivos, algoritmos Dividir para Conquistar, y una implementaci�
 
 ```
 .
-├── informe.pdf              # Informe final (compilado)
-├── informe/                 # Fuente LaTeX del informe
-│   ├── main.tex             #   documento principal
-│   ├── preambulo.tex        #   paquetes y macros
+├── informe.pdf                  # Informe final (compilado)
+├── presentacion.pdf             # Presentación del informe
+├── informe/                     # Fuente LaTeX del informe
+│   ├── main.tex                 #   documento principal
+│   ├── preambulo.tex            #   paquetes y macros
 │   ├── portada.tex
-│   ├── secciones/           #   una sección por actividad 
-│   ├── figuras/             #   logos/ de la portada y figuras generadas por scripts/
-│   └── tablas/              #   tablas generadas por scripts/ 
-├── src/                     
-│   └── kdtree.py            #   k-d tree, búsqueda exhaustiva y squared_distance (Actividad 4)
-├── scripts/                 # Scripts que generan tablas, figuras y datos
-│   ├── act2_log_vs_raiz.py  #   gráfico de log2(n) y sqrt(n) de la Actividad 2.2
-│   └── act4_kdtree.py       #   experimentos de la Actividad 4
-├── resultados/              # Datos crudos de los experimentos (CSV)
-└── requirements.txt         # Dependencias de Python con versiones fijas
+│   ├── secciones/               #   una sección por actividad
+│   │   ├── act1.tex             #     Actividad 1: act1-algoritmoA, B y C
+│   │   ├── act2.tex             #     Actividad 2: act2-1 y act2-2
+│   │   ├── act3.tex             #     Actividad 3: act3-1 y act3-2
+│   │   ├── act4.tex             #     Actividad 4: k-d tree
+│   │   └── declaracion-ia.tex   #     declaración de uso de IA
+│   ├── figuras/                 #   logos/ de la portada y figuras generadas por scripts/
+│   └── tablas/                  #   tablas generadas por scripts/
+├── src/
+│   └── kdtree.py                #   k-d tree, búsqueda exhaustiva y squared_distance (Actividad 4)
+├── scripts/                     # Scripts que generan tablas, figuras y datos
+│   ├── act2_log_vs_raiz.py      #   gráfico de log2(n) y sqrt(n) de la Actividad 2.2
+│   └── act4_kdtree.py           #   experimentos de la Actividad 4
+├── resultados/                  # Datos crudos de los experimentos de la Actividad 4 (CSV)
+│   ├── act4_kdtree.csv          #   resumen por dimensión
+│   └── act4_visitados_por_consulta.csv  # nodos visitados en cada consulta
+└── requirements.txt             # Dependencias de Python con versiones fijas
 ```
 
 ## Dependencias
